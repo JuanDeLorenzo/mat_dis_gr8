@@ -1,6 +1,5 @@
 package app;
 
-import graph.EdgeArrayGraphImpl;
 import graph.Graph;
 
 import java.util.ArrayList;
@@ -59,6 +58,30 @@ public class Exercises<T>{
     // d) iv)
 
     // e)
+
+    public Integer[][] warshall(Graph<T> graph){
+        // TODO @pedro implement graph's adjacency matrix (use Integer to allow nulls)
+        // TODO @pedro replace `new Integer[0][0];` w/ graph's adjacency matrix
+        Integer[][] tMatrix = new Integer[0][0];
+
+        for (int k = 0; k < graph.order(); k++){
+            tMatrix = iterateTMatrix(tMatrix, k);
+        }
+
+        return tMatrix;
+    }
+
+    private Integer[][] iterateTMatrix(Integer[][] matrix, int k){
+        for (int i = 0; i < matrix[0].length; i++){
+            for (int j = 0; j < matrix[0].length; j++){
+                boolean notSelf = matrix[i][j] != null;
+                boolean hasDirectPath = (matrix[k][i] == 1 && matrix[i][k] == 1);
+                if(notSelf && hasDirectPath) matrix[i][j] = 1;
+            }
+        }
+
+        return matrix;
+    }
 
     // f)
 
