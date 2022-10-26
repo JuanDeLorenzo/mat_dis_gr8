@@ -65,13 +65,13 @@ public class Exercises<T>{
         Integer[][] tMatrix = new Integer[0][0];
 
         for (int k = 0; k < graph.order(); k++){
-            tMatrix = iterateTMatrix(tMatrix, k);
+            iterateTMatrix(tMatrix, k);
         }
 
         return tMatrix;
     }
 
-    private Integer[][] iterateTMatrix(Integer[][] matrix, int k){
+    private void iterateTMatrix(Integer[][] matrix, int k){
         for (int i = 0; i < matrix[0].length; i++){
             for (int j = 0; j < matrix[0].length; j++){
                 boolean notSelf = matrix[i][j] != null;
@@ -80,7 +80,6 @@ public class Exercises<T>{
             }
         }
 
-        return matrix;
     }
 
     // f)
