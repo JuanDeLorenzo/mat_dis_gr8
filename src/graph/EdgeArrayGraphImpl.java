@@ -90,7 +90,7 @@ public class EdgeArrayGraphImpl<T> implements Graph<T> {
     @Override
     public boolean hasEdge(T v, T w) {
         for (int i = 0; i < alpha; i++) {
-            if ((A.get(i).getFirst().equals(v) && A.get(i).getSecond().equals(w)) || (A.get(i).getFirst().equals(w) && A.get(i).getSecond().equals(v))) {
+            if ((A.get(i).getFirst().equals(v) && A.get(i).getSecond().equals(w))) {
                 return true;
             }
         }
@@ -117,23 +117,15 @@ public class EdgeArrayGraphImpl<T> implements Graph<T> {
         return lst;
     }
 
+    //Method that returns the list of edges adjacent to v for a non-directed graph
     @Override
     public List<T> getAdjacencyList(T v) {
-        List<T> adjList = new LinkedList<T>();
-        for (int i = 0; i < n; i++) {
-            if (V[i] == v){
-                for (int j = 0; j < alpha; j++) {
-                    T first = (T) A.get(j).getFirst();
-                    T second = (T) A.get(j).getSecond();
-                    if (first.equals(v)) {
-                        adjList.add(second);
-                    }
-                    if (second.equals(v)) {
-                        adjList.add(first);
-                    }
-                }
+        List<T> lst = new ArrayList<>();
+        for (int i = 0; i < alpha; i++) {
+            if (A.get(i).getFirst().equals(v)) {
+                lst.add((T) A.get(i).getSecond());
             }
         }
-        return adjList;
+        return lst;
     }
 }

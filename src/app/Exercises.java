@@ -1,5 +1,6 @@
 package app;
 
+import graph.EdgeArrayGraphImpl;
 import graph.Graph;
 
 import java.util.ArrayList;
@@ -8,27 +9,30 @@ import java.util.List;
 public class Exercises<T>{
 
     // c) ii)
-    public void printGraph(Graph<T> graph) {
-        for (int i = 0; i < graph.order(); i++) {
-            System.out.println("Vertex: " + graph.getVertexes().get(i));
-            StringBuilder str = new StringBuilder("Edges: ");
-            for (int j = 0; j < graph.getAdjacencyList(graph.getVertexes().get(i)).size(); j++) {
-                str.append(" -> ").append(graph.getAdjacencyList(graph.getVertexes().get(i)).get(j));
+    public void printGraph(Graph<T> graph){
+        List<T> vertices = graph.getVertexes();
+        String vertexes = "";
+        String edges = "";
+        for (T vertex : vertices) {
+            vertexes += vertex + ", ";
+            for (T adj : graph.getAdjacencyList(vertex)) {
+                edges += "(" + vertex + ", " + adj + "), ";
             }
         }
+        System.out.println("Vertexes: " + vertexes);
+        System.out.println("Edges: " + edges);
     }
 
     // d) i)
     public int sourceVertexes(Graph<T> graph){
-        int counter = 0;
-        for (T sourceVertex :graph.getVertexes()) {
-            boolean isSource = true;
-            for (T vertex:graph.getVertexes()) {
-                if (graph.hasEdge(vertex, sourceVertex)) isSource = false;
+        List<T> vertices = graph.getVertexes();
+        int sourceVertexes = 0;
+        for (T vertex : vertices) {
+            if (graph.getAdjacencyList(vertex).size() == 0) {
+                sourceVertexes++;
             }
-            if (isSource) counter++;
         }
-        return counter;
+        return sourceVertexes;
     }
 
     // d) ii)
@@ -37,7 +41,7 @@ public class Exercises<T>{
         for (T sinkVertex:graph.getVertexes()) {
             boolean isSink = true;
             for (T vertex:graph.getVertexes()) {
-                if (graph.hasEdge(sinkVertex, vertex)) isSink = false;
+                if (graph.hasEdge(sinkVertex,vertex)) isSink = false;
             }
             if (isSink) sinkVertexes.add(sinkVertex);
         }
@@ -48,6 +52,7 @@ public class Exercises<T>{
     public List<T> vertexDistanceTwoOrLess(T v, Graph<T> graph){
         List<T> vertexDistanceTwoOrLess = new ArrayList<>();
         graph.getAdjacencyList(v).forEach(vertex -> {
+            if (!vertex.equals(v)) vertexDistanceTwoOrLess.add(vertex);
             graph.getAdjacencyList(vertex).forEach(vertex2 -> {
                 if (!vertex2.equals(v)) vertexDistanceTwoOrLess.add(vertex2);
             });
@@ -56,33 +61,64 @@ public class Exercises<T>{
     }
 
     // d) iv)
-
-    // e)
-
-    public Integer[][] warshall(Graph<T> graph){
-        // TODO @pedro implement graph's adjacency matrix (use Integer to allow nulls)
-        // TODO @pedro replace `new Integer[0][0];` w/ graph's adjacency matrix
-        Integer[][] tMatrix = new Integer[0][0];
-
-        for (int k = 0; k < graph.order(); k++){
-            iterateTMatrix(tMatrix, k);
-        }
-
-        return tMatrix;
-    }
-
-    private void iterateTMatrix(Integer[][] matrix, int k){
-        for (int i = 0; i < matrix[0].length; i++){
-            for (int j = 0; j < matrix[0].length; j++){
-                boolean notSelf = matrix[i][j] != null;
-                boolean hasDirectPath = (matrix[k][i] == 1 && matrix[i][k] == 1);
-                if(notSelf && hasDirectPath) matrix[i][j] = 1;
+    public boolean isStronglyConnected(Graph<T> graph){
+        if (graph.order() == 0) return false;
+        for (T vertex:graph.getVertexes()) {
+            List<T> visited = new ArrayList<>();
+            DFS(vertex,visited,graph);
+            for (T vertex2:graph.getVertexes()) {
+                if (!visited.contains(vertex2) && vertex2 != vertex) return false;
             }
         }
+        return true;
+    }
 
+    private List<T> DFS(T v, List<T> visited, Graph<T> graph){
+        List<T> adjacencyList = graph.getAdjacencyList(v);
+        visited.add(v);
+        for (int i = 0; i < adjacencyList.size(); i++) {
+            T currentV = adjacencyList.get(i);
+            if (!visited.contains(currentV)) {
+                List<T> list = DFS(currentV, visited, graph);
+                for (int j = 0; j < list.size(); j++) {
+                    T currentV2 = list.get(i);
+                    if (!visited.contains(currentV2)) {
+                        visited.add(currentV2);
+                    }
+                }
+            }
+        }
+        return visited;
+    }
+
+
+    // e)
+    public boolean[][] warshall(Graph<T> graph){
+        boolean[][] warshall = new boolean[graph.order()][graph.order()];
+        for (int i = 0; i < graph.order(); i++) {
+            for (int j = 0; j < graph.order(); j++) {
+                if (graph.hasEdge(graph.getVertexes().get(i), graph.getVertexes().get(j))) warshall[i][j] = true;
+            }
+        }
+        for (int k = 0; k < graph.order(); k++) {
+            for (int i = 0; i < graph.order(); i++) {
+                for (int j = 0; j < graph.order(); j++) {
+                    warshall[i][j] = warshall[i][j] || (warshall[i][k] && warshall[k][j]);
+                }
+            }
+        }
+        return warshall;
     }
 
     // f)
+    public boolean application(int[][] edges, T v, T w){
+        Graph<T> graph = new EdgeArrayGraphImpl<>();
+        for (int[] edge : edges) {
+            graph.addEdge(graph.getVertexes().get(edge[0]), graph.getVertexes().get(edge[1]));
+        }
+        boolean[][] warshall = warshall(graph);
+        return warshall[graph.getVertexes().indexOf(v)][graph.getVertexes().indexOf(w)];
+    }
 
 
 
